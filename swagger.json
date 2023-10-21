@@ -1,0 +1,462 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a product management tools",
+    "version": "1.0.0",
+    "title": "product testing api with auth",
+    "contact": {
+      "email": "nihalse@outlook.com"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "schemes": ["https"],
+  "host": "inventory22.herokuapp.com",
+  "basePath": "/",
+  "securityDefinitions": {
+    "Authorization": {
+      "type": "apiKey",
+      "in": "header",
+      "name": "x-access-token",
+      "description": "Authentication token"
+    }
+  },
+  "paths": {
+    "/users/signup": {
+      "post": {
+        "summary": "",
+        "tags": ["User"],
+        "description": "Register New User",
+        "produces": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "mobileNumber": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "409": {
+            "description": "User Exist",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Information validation error",
+            "schema": {
+              "type": "object"
+            }
+          }
+        }
+      }
+    },
+    "/users/login": {
+      "post": {
+        "summary": "",
+        "tags": ["User"],
+        "description": "User Login",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "403": {
+            "description": "Invalid Value",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "400": {
+            "description": "Invalid Credentials",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/product": {
+      "get": {
+        "summary": "",
+        "tags": ["Product"],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "description": "All added product list",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/product/create": {
+      "post": {
+        "summary": "",
+        "tags": ["Product"],
+        "description": "Create a new product",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "number"
+                },
+                "unitPrice": {
+                  "type": "number"
+                },
+                "size": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                },
+                "discount": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Product"
+            }
+          }
+        }
+      }
+    },
+    "/product/update": {
+      "put": {
+        "summary": "",
+        "tags": ["Product"],
+        "description": "Update product type",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "number"
+                },
+
+                "type": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/definitions/Product"
+                },
+                "msg": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "When product not exist",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/product/edit": {
+      "put": {
+        "summary": "",
+        "tags": ["Product"],
+        "description": "Edit product information",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "quantity": {
+                  "type": "number"
+                },
+                "unitPrice": {
+                  "type": "number"
+                },
+                "size": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                },
+                "discount": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/definitions/Product"
+                },
+                "msg": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "When product not exist",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/product/search": {
+      "post": {
+        "summary": "",
+        "tags": ["Product"],
+        "security": [
+          {
+            "Authorization": []
+          }
+        ],
+        "description": "Search product by name",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "str": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Product"
+              }
+            }
+          },
+          "500": {
+            "description": "When server error occurs",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "/product/delete": {
+      "delete": {
+        "summary": "",
+        "tags": ["Product"],
+        "description": "product will be inactive to view (Partial delete). Future reuse",
+        "produces": ["application/json"],
+        "consumes": ["application/json"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "task object",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "product": {
+                  "$ref": "#/definitions/Product"
+                },
+                "msg": {
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "504": {
+            "description": "When server failed for that time only",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "When server error occurs",
+            "schema": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phoneNumber": {
+          "type": "string"
+        },
+        "password": {
+          "type": "string"
+        },
+        "token": {
+          "type": "string"
+        }
+      }
+    },
+    "Product": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "size": { "type": "string" },
+        "discount": { "type": "number" },
+        "quantity": { "type": "number" },
+        "unitPrice": { "type": "number" },
+        "totalPrice": { "type": "number" },
+        "active": { "type": "boolean" },
+        "productCode": { "type": "string" }
+      }
+    }
+  }
+}

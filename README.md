@@ -1,1 +1,2 @@
-# growb_info
+# inventory-server
+It is a inventory management system
