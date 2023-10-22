@@ -3,8 +3,10 @@ var express = require("express");
 var router = express.Router();
 const userModel = require("../../model/user");
 const jwt = require("jsonwebtoken");
-const userValidation = require("../validatior/userValidation");
+const userValidation = require("../validator/userValidator");
+const SerialNumberGenerator = require("../../utilities/uniqueCode");
 
+const serialNumberGenerator = new SerialNumberGenerator();
 /* GET users listing. */
 
 /**
@@ -21,20 +23,27 @@ router.post("/signup", async (req, res) => {
       try {
         const oldUser = await userModel.findOne({ email });
         if (oldUser) {
-          return res.status(409).send("User Already Exist. Please Login");
+          return res.status(409).json({
+            success: false,
+            error: "User Already Exist. Please Login",
+          });
         }
       } catch (err) {
         console.log(err);
+        return res.status(500).json({
+          success: false,
+          error: "Something went wrong, please try again",
+        });
       }
 
       const encryptedPassword = await bcrypt.hash(password, 10);
 
       const user = await userModel.create({
-        id: Date.now(),
+        id: serialNumberGenerator.generateUniqueCode(),
         name,
         email: email.toLowerCase(),
         mobileNumber,
-        nid,
+        nid: !!nid ? nid : "",
         type,
         password: encryptedPassword,
       });
@@ -53,10 +62,14 @@ router.post("/signup", async (req, res) => {
       // return new user
       res.status(201).json(user);
     } else {
-      return res.status(404).json({ errors: validate.error });
+      return res.status(403).json({ errors: validate.error });
     }
   } catch (err) {
     console.error(err);
+    return res.status(500).json({
+      success: false,
+      error: "Something went wrong, please try again",
+    });
   }
 });
 
@@ -68,16 +81,16 @@ router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
     // Validate user input
-    if (!(email && password)) {
-      res.status(403).send("All input is required");
+    if (!(!!email && !!password)) {
+      res.status(403).json({ success: false, error: "All input is required" });
     }
     // Validate if user exist in our database
     const user = await userModel.findOne({ email });
 
-    if (user && (await bcrypt.compare(password, user.password))) {
+    if (!!user && (await bcrypt.compare(password, user.password))) {
       // Create token
       const token = jwt.sign(
-        { user_id: user._id, email, id: user.id },
+        { user_id: user._id, email, id: user.id, avatar: user?.avatar },
         process.env.TOKEN_KEY,
         {
           expiresIn: "2h",
@@ -88,11 +101,17 @@ router.post("/login", async (req, res) => {
       user.token = token;
 
       // user
-      res.status(200).json(user);
-    }
-    res.status(400).send("Invalid Credentials");
+      res.status(200).json({ success: true, dataSource: user });
+    } else
+      res
+        .status(403)
+        .json({ success: false, error: "Email or password is incorrect" });
   } catch (err) {
     console.log(err);
+    return res.status(500).json({
+      success: false,
+      error: "Something went wrong, please try again",
+    });
   }
 });
 module.exports = router;

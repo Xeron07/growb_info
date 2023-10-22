@@ -27,6 +27,9 @@ const validator = (data) => {
         return errors;
       }),
     password: Joi.string().required(),
+    nid: Joi.string(),
+    token: Joi.string(),
+    type: Joi.string(),
   });
 
   return schema.validate(data);
