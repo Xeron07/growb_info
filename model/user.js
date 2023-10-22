@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
     default:
-      "https://res.cloudinary.com/emerging-it/image/upload/v1697977542/Growb/default-icon/whenb2ehedennxert3cf.png",
+      "https://res.cloudinary.com/emerging-it/image/upload/v1697993177/Growb/default-icon/fpnvpqwno80grmvstwnc.jpg",
   },
   nid: { type: String, default: "" },
   type: {
