@@ -93,7 +93,7 @@ router.post("/add", async (req, res) => {
         date,
         orderId: serialNumberGenerator.generateUniqueCode(),
         trackId: serialNumberGenerator.generateUniqueCode(),
-        totalDiscount,
+        totalDiscount: !!totalDiscount ? totalDiscount : 0,
         products,
         totalPrice,
         user: !!req.user

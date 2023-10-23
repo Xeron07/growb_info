@@ -90,25 +90,58 @@ router.post("/login", async (req, res) => {
     if (!!user && (await bcrypt.compare(password, user.password))) {
       // Create token
       const token = jwt.sign(
-        { user_id: user._id, email, id: user.id, avatar: user?.avatar },
+        {
+          user_id: user._id,
+          email,
+          id: user.id,
+          avatar: user?.avatar,
+          name: user?.name,
+        },
         process.env.TOKEN_KEY,
         {
           expiresIn: "2h",
         }
       );
 
+      // Create the refresh token
+      const refreshToken = jwt.sign(
+        { user_id: user._id },
+        process.env.REFRESH_TOKEN_KEY,
+        {
+          expiresIn: "30d", // You can adjust the expiration time
+        }
+      );
+
       // save user token
       user.token = token;
+      user.refreshToken = refreshToken;
 
       // user
-      res.status(200).json({ success: true, dataSource: user });
+      return res.status(200).json({ success: true, dataSource: user });
     } else
-      res
+      return res
         .status(403)
         .json({ success: false, error: "Email or password is incorrect" });
   } catch (err) {
     console.log(err);
     return res.status(500).json({
+      success: false,
+      error: "Something went wrong, please try again",
+    });
+  }
+});
+
+/* GET user by id */
+router.get("/by/:id", async (req, res) => {
+  console.log(req.params.id);
+  try {
+    const menufectur = await userModel.findOne({
+      _id: req.params.id || "",
+    });
+    res.status(200).json({ success: true, dataSource: menufectur });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({
       success: false,
       error: "Something went wrong, please try again",
     });
