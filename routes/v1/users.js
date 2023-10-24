@@ -56,8 +56,20 @@ router.post("/signup", async (req, res) => {
           expiresIn: "2h",
         }
       );
+
+      // Create the refresh token
+      const refreshToken = jwt.sign(
+        { user_id: user._id },
+        process.env.REFRESH_TOKEN_KEY,
+        {
+          expiresIn: "30d", // You can adjust the expiration time
+        }
+      );
       // save user token
       user.token = token;
+      user.refreshToken = refreshToken;
+
+      user.save();
 
       // return new user
       res.status(201).json(user);
@@ -115,6 +127,8 @@ router.post("/login", async (req, res) => {
       // save user token
       user.token = token;
       user.refreshToken = refreshToken;
+
+      user.save();
 
       // user
       return res.status(200).json({ success: true, dataSource: user });
