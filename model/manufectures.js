@@ -3,7 +3,7 @@ const mongoose = require("mongoose");
 const clientSchema = new mongoose.Schema({
   id: { type: String, unique: true },
   name: { type: String, default: "" },
-  email: { type: String, unique: true, default: "" },
+  email: { type: String, default: "growb.xyz" },
   mobileNumber: { type: String, default: "not given" },
   shopName: { type: String, default: "" },
   ownerName: { type: String, default: "" },
