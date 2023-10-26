@@ -116,4 +116,168 @@ router.post("/add", async (req, res) => {
   }
 });
 
+router.get("/dashboard", async (req, res) => {
+  try {
+    const recentTransactions = await retailerModel.aggregate([
+      // Unwind the transactions array to work with individual transactions
+      { $unwind: "$transections" },
+
+      // Match transactions with non-null product.unitPrice
+      {
+        $match: {
+          "transections.products.unitPrice": { $ne: null },
+        },
+      },
+
+      // Calculate the total amount for each transaction
+      {
+        $set: {
+          "transections.totalAmount": {
+            $sum: {
+              $map: {
+                input: "$transections.products",
+                as: "product",
+                in: {
+                  $subtract: [
+                    {
+                      $multiply: ["$$product.unitPrice", "$$product.quantity"],
+                    },
+                    { $ifNull: ["$$product.discount", 0] }, // Replace null discount with 0
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+
+      // Sort transactions by date in descending order (most recent first)
+      { $sort: { "transections.date": -1 } },
+
+      // Limit to the first 10 transactions
+      { $limit: 10 },
+
+      // Project the desired fields
+      {
+        $project: {
+          _id: 0, // Exclude the _id field
+          date: "$transections.date",
+          orderId: "$transections.orderId",
+          trackId: "$transections.trackId",
+          totalDiscount: "$transections.totalDiscount",
+          status: "$transections.status",
+          user: "$transections.user",
+          totalAmount: "$transections.totalAmount", // Include the calculated totalAmount
+          shopName: "$shopName",
+        },
+      },
+    ]);
+
+    const totalAmount = await retailerModel.aggregate([
+      // Unwind the transactions array to work with individual transactions
+      { $unwind: "$transections" },
+
+      // Match transactions with non-null product.unitPrice
+      {
+        $match: {
+          "transections.products.unitPrice": { $ne: null },
+        },
+      },
+
+      // Calculate the total amount for each transaction
+      {
+        $set: {
+          "transections.totalAmount": {
+            $sum: {
+              $map: {
+                input: "$transections.products",
+                as: "product",
+                in: {
+                  $subtract: [
+                    {
+                      $multiply: ["$$product.unitPrice", "$$product.quantity"],
+                    },
+                    { $ifNull: ["$$product.discount", 0] }, // Replace null discount with 0
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+
+      {
+        $group: {
+          _id: null,
+          totalAmountSum: { $sum: "$transections.totalAmount" },
+          totalTransactions: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const topShops = await retailerModel.aggregate([
+      // Unwind the transactions array to work with individual transactions
+      { $unwind: "$transections" },
+
+      // Match transactions with non-null product.unitPrice
+      {
+        $match: {
+          "transections.products.unitPrice": { $ne: null },
+        },
+      },
+
+      // Calculate the total amount for each transaction
+      {
+        $addFields: {
+          "transections.totalAmount": {
+            $sum: {
+              $map: {
+                input: "$transections.products",
+                as: "product",
+                in: {
+                  $subtract: [
+                    {
+                      $multiply: ["$$product.unitPrice", "$$product.quantity"],
+                    },
+                    { $ifNull: ["$$product.discount", 0] }, // Replace null discount with 0
+                  ],
+                },
+              },
+            },
+          },
+        },
+      },
+
+      // Sort transactions by totalAmount in descending order (most total amount first)
+      { $sort: { "transections.totalAmount": -1 } },
+
+      // Limit to the first 10 transactions
+      { $limit: 3 },
+
+      // Project the desired fields
+      {
+        $project: {
+          _id: 0, // Exclude the _id field
+          icon: 1,
+          totalAmount: "$transections.totalAmount", // Include the calculated totalAmount
+          shopName: 1,
+          ownerName: 1,
+          mobileNumber: 1,
+        },
+      },
+    ]);
+
+    return res.json({
+      success: true,
+      dataSource: { totalAmount, recentTransactions, topShops },
+    });
+  } catch (exception) {
+    console.log(exception);
+    return res.json({
+      success: false,
+      error: "Please try again after some time",
+    });
+  }
+});
+
 module.exports = router;

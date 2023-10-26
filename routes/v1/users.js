@@ -128,8 +128,6 @@ router.post("/login", async (req, res) => {
       user.token = token;
       user.refreshToken = refreshToken;
 
-      user.save();
-
       // user
       return res.status(200).json({ success: true, dataSource: user });
     } else

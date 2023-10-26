@@ -4,8 +4,7 @@ const userModel = require("../model/user");
 const V1 = require("./v1");
 const jwt = require("jsonwebtoken");
 
-/* GET home page. */
-router.get("/", (req, res) => res.send("Hello brothers"));
+const config = process.env;
 
 /* GET home page. */
 router.use("/v1", V1);
@@ -18,7 +17,16 @@ router.post("/refresh-token", async (req, res) => {
     return res.status(400).json({ error: "Refresh token is required" });
   }
 
-  const user = await userModel.findOne({ refreshToken });
+  const decoded = jwt.verify(refreshToken, config.TOKEN_KEY);
+  const { user_id } = decoded;
+
+  if (!user_id) {
+    return res.status(400).json({ error: "Refresh token is not valid" });
+  }
+
+  console.log(user_id);
+
+  const user = await userModel.findOne({ _id: user_id });
 
   if (user) {
     // In a real application, validate the refresh token, check if it's expired, and look up the associated user.
@@ -43,5 +51,8 @@ router.post("/refresh-token", async (req, res) => {
     return res.status(400).json({ error: "Refresh token is required" });
   }
 });
+
+/* GET home page. */
+router.get("/", (req, res) => res.send("Hello brothers"));
 
 module.exports = router;

@@ -18,6 +18,6 @@ router.use("/user", userRoute);
 router.use("/product", productRoute);
 router.use("/menufecture", auth, menufectureRoute);
 router.use("/retailer", auth, retailerRoute);
-router.use("/transection", auth, transectionRoute);
+router.use("/transection", transectionRoute);
 
 module.exports = router;
