@@ -17,7 +17,7 @@ router.post("/refresh-token", async (req, res) => {
     return res.status(400).json({ error: "Refresh token is required" });
   }
   try {
-    const decoded = jwt.verify(refreshToken, config.TOKEN_KEY);
+    const decoded = jwt.verify(refreshToken, config.REFRESH_TOKEN_KEY);
     const { user_id } = decoded;
 
     if (!user_id) {
