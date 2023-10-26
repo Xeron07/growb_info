@@ -16,39 +16,41 @@ router.post("/refresh-token", async (req, res) => {
   if (!refreshToken) {
     return res.status(400).json({ error: "Refresh token is required" });
   }
+  try {
+    const decoded = jwt.verify(refreshToken, config.TOKEN_KEY);
+    const { user_id } = decoded;
 
-  const decoded = jwt.verify(refreshToken, config.TOKEN_KEY);
-  const { user_id } = decoded;
+    if (!user_id) {
+      return res.status(400).json({ error: "Refresh token is not valid" });
+    }
 
-  if (!user_id) {
+    const user = await userModel.findOne({ _id: user_id });
+
+    if (user) {
+      // In a real application, validate the refresh token, check if it's expired, and look up the associated user.
+
+      // Create token
+      const accessToken = jwt.sign(
+        {
+          user_id: user._id,
+          email,
+          id: user.id,
+          avatar: user?.avatar,
+          name: user?.name,
+        },
+        process.env.TOKEN_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+
+      return res.json({ accessToken });
+    } else {
+      return res.status(400).json({ error: "Refresh token is required" });
+    }
+  } catch (exception) {
+    console.error(exception);
     return res.status(400).json({ error: "Refresh token is not valid" });
-  }
-
-  console.log(user_id);
-
-  const user = await userModel.findOne({ _id: user_id });
-
-  if (user) {
-    // In a real application, validate the refresh token, check if it's expired, and look up the associated user.
-
-    // Create token
-    const accessToken = jwt.sign(
-      {
-        user_id: user._id,
-        email,
-        id: user.id,
-        avatar: user?.avatar,
-        name: user?.name,
-      },
-      process.env.TOKEN_KEY,
-      {
-        expiresIn: "2h",
-      }
-    );
-
-    return res.json({ accessToken });
-  } else {
-    return res.status(400).json({ error: "Refresh token is required" });
   }
 });
 
