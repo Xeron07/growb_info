@@ -33,7 +33,7 @@ router.post("/refresh-token", async (req, res) => {
       const accessToken = jwt.sign(
         {
           user_id: user._id,
-          email,
+          email: user?.email,
           id: user.id,
           avatar: user?.avatar,
           name: user?.name,
